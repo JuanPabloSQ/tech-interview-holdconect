@@ -14,9 +14,11 @@ import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import AddIcon from '@mui/icons-material/Add';
 import { visuallyHidden } from '@mui/utils';
 import data from '../example';
 import ModalFilter from './ModalFilter';
+import ModalCreate from './ModalCreate';
 
 const descendingComparator = (a, b, orderBy) => {
   if (b[orderBy] < a[orderBy]) {
@@ -94,7 +96,7 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-const EnhancedTableToolbar = ({ onFilterClick }) => (
+const EnhancedTableToolbar = ({ onFilterClick, onCreateClick }) => (
   <Toolbar
     sx={{
       pl: { sm: 2 },
@@ -109,6 +111,11 @@ const EnhancedTableToolbar = ({ onFilterClick }) => (
         <FilterListIcon />
       </IconButton>
     </Tooltip>
+    <Tooltip title="Agregar nueva calle">
+      <IconButton onClick={onCreateClick}>
+        <AddIcon />
+      </IconButton>
+    </Tooltip>
   </Toolbar>
 );
 
@@ -118,6 +125,9 @@ const TableStreet = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [filteredData, setFilteredData] = useState(data);
+
   const [filters, setFilters] = useState({
     region: '',
     province: '',
@@ -148,20 +158,32 @@ const TableStreet = () => {
     setFilterModalOpen(false);
   };
 
-  const applyFilters = (newFilters) => {
-    setFilters(newFilters);
+  const handleOpenCreateModal = () => {
+    setCreateModalOpen(true);
   };
 
-  const filteredData = useMemo(() => {
-    return data.filter((item) => {
+  const handleCloseCreateModal = () => {
+    setCreateModalOpen(false);
+  };
+
+  const applyFilters = (newFilters) => {
+    setFilters(newFilters);
+    const filtered = data.filter((item) => {
       return (
-        (!filters.region || item.region === filters.region) &&
-        (!filters.province || item.province === filters.province) &&
-        (!filters.city || item.city === filters.city) &&
-        (!filters.street || item.street === filters.street)
+        (!newFilters.region || item.region === newFilters.region) &&
+        (!newFilters.province || item.province === newFilters.province) &&
+        (!newFilters.city || item.city === newFilters.city) &&
+        (!newFilters.street || item.street === newFilters.street)
       );
     });
-  }, [filters]);
+    setFilteredData(filtered);
+  };
+
+  const addNewStreet = (newStreet) => {
+    const newData = [...filteredData, newStreet];
+    setFilteredData(newData);
+    handleCloseCreateModal();
+  };
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
@@ -178,7 +200,10 @@ const TableStreet = () => {
   return (
     <>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar onFilterClick={handleOpenFilterModal} />
+        <EnhancedTableToolbar 
+          onFilterClick={handleOpenFilterModal} 
+          onCreateClick={handleOpenCreateModal} 
+        />
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
             <EnhancedTableHead
@@ -230,6 +255,12 @@ const TableStreet = () => {
         open={filterModalOpen} 
         handleClose={handleCloseFilterModal} 
         applyFilters={applyFilters} 
+      />
+
+      <ModalCreate 
+        open={createModalOpen} 
+        handleClose={handleCloseCreateModal} 
+        addNewStreet={addNewStreet} 
       />
     </>
   );
