@@ -15,24 +15,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
-
-const createData = (id, street, region, province, city) => {
-  return {
-    id,
-    street,
-    region,
-    province,
-    city,
-  };
-};
-
-const rows = [
-  createData(1, 'Main St', 'Region 1', 'Province A', 'City X'),
-  createData(2, 'Second St', 'Region 1', 'Province A', 'City Y'),
-  createData(3, 'Third St', 'Region 2', 'Province B', 'City Z'),
-  createData(4, 'Fourth St', 'Region 2', 'Province B', 'City W'),
-  createData(5, 'Fifth St', 'Region 3', 'Province C', 'City V'),
-];
+import data from '../example';
 
 const descendingComparator = (a, b, orderBy) => {
   if (b[orderBy] < a[orderBy]) {
@@ -149,11 +132,11 @@ const TableStreet = () => {
   };
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   const visibleRows = useMemo(
     () =>
-      stableSort(rows, getComparator(order, orderBy)).slice(
+      stableSort(data, getComparator(order, orderBy)).slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
       ),
@@ -169,7 +152,7 @@ const TableStreet = () => {
             order={order}
             orderBy={orderBy}
             onRequestSort={handleRequestSort}
-            rowCount={rows.length}
+            rowCount={data.length}
           />
           <TableBody>
             {visibleRows.map((row) => (
@@ -197,7 +180,7 @@ const TableStreet = () => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={rows.length}
+        count={data.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
