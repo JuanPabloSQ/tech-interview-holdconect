@@ -1,4 +1,5 @@
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import createTheme from '@mui/material/styles/createTheme';
 import { useState, useMemo, createContext, useContext } from 'react';
 import getTheme from '../theme/theme';
 
