@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -16,6 +16,7 @@ import Tooltip from '@mui/material/Tooltip';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import data from '../example';
+import ModalFilter from './ModalFilter';
 
 const descendingComparator = (a, b, orderBy) => {
   if (b[orderBy] < a[orderBy]) {
@@ -66,6 +67,7 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort }) => {
             align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
+            sx={headCell.id === 'street' ? { pl: 2 } : {}} 
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -92,7 +94,7 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-const EnhancedTableToolbar = () => (
+const EnhancedTableToolbar = ({ onFilterClick }) => (
   <Toolbar
     sx={{
       pl: { sm: 2 },
@@ -100,10 +102,10 @@ const EnhancedTableToolbar = () => (
     }}
   >
     <Typography sx={{ flex: '1 1 100%' }} variant="h6" id="tableTitle" component="div">
-      Calles
+      Dirección
     </Typography>
     <Tooltip title="Filtrar lista">
-      <IconButton>
+      <IconButton onClick={onFilterClick}>
         <FilterListIcon />
       </IconButton>
     </Tooltip>
@@ -115,6 +117,13 @@ const TableStreet = () => {
   const [orderBy, setOrderBy] = useState('street');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    region: '',
+    province: '',
+    city: '',
+    street: '',
+  });
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -131,62 +140,98 @@ const TableStreet = () => {
     setPage(0);
   };
 
+  const handleOpenFilterModal = () => {
+    setFilterModalOpen(true);
+  };
+
+  const handleCloseFilterModal = () => {
+    setFilterModalOpen(false);
+  };
+
+  const applyFilters = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      return (
+        (!filters.region || item.region === filters.region) &&
+        (!filters.province || item.province === filters.province) &&
+        (!filters.city || item.city === filters.city) &&
+        (!filters.street || item.street === filters.street)
+      );
+    });
+  }, [filters]);
+
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
 
   const visibleRows = useMemo(
     () =>
-      stableSort(data, getComparator(order, orderBy)).slice(
+      stableSort(filteredData, getComparator(order, orderBy)).slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
       ),
-    [order, orderBy, page, rowsPerPage]
+    [order, orderBy, page, rowsPerPage, filteredData]
   );
 
   return (
-    <Paper sx={{ width: '100%', mb: 2, mx: 2 }}>
-      <EnhancedTableToolbar />
-      <TableContainer>
-        <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
-          <EnhancedTableHead
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            rowCount={data.length}
-          />
-          <TableBody>
-            {visibleRows.map((row) => (
-              <TableRow hover tabIndex={-1} key={row.id} sx={{ cursor: 'pointer' }}>
-                <TableCell component="th" scope="row" padding="none">
-                  {row.street}
-                </TableCell>
-                <TableCell align="left">{row.region}</TableCell>
-                <TableCell align="left">{row.province}</TableCell>
-                <TableCell align="left">{row.city}</TableCell>
-              </TableRow>
-            ))}
-            {emptyRows > 0 && (
-              <TableRow
-                style={{
-                  height: 53 * emptyRows,
-                }}
-              >
-                <TableCell colSpan={6} />
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={data.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+    <>
+      <Paper sx={{ width: '100%', mb: 2 }}>
+        <EnhancedTableToolbar onFilterClick={handleOpenFilterModal} />
+        <TableContainer>
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
+            <EnhancedTableHead
+              order={order}
+              orderBy={orderBy}
+              onRequestSort={handleRequestSort}
+              rowCount={filteredData.length}
+            />
+            <TableBody>
+              {visibleRows.map((row) => (
+                <TableRow hover tabIndex={-1} key={row.id} sx={{ cursor: 'pointer' }}>
+                  <TableCell 
+                    component="th" 
+                    scope="row" 
+                    padding="none"
+                    sx={{ pl: 2 }} 
+                  >
+                    {row.street}
+                  </TableCell>
+                  <TableCell align="left">{row.region}</TableCell>
+                  <TableCell align="left">{row.province}</TableCell>
+                  <TableCell align="left">{row.city}</TableCell>
+                </TableRow>
+              ))}
+              {emptyRows > 0 && (
+                <TableRow
+                  style={{
+                    height: 53 * emptyRows,
+                  }}
+                >
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={filteredData.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+
+      <ModalFilter 
+        open={filterModalOpen} 
+        handleClose={handleCloseFilterModal} 
+        applyFilters={applyFilters} 
       />
-    </Paper>
+    </>
   );
 };
 
