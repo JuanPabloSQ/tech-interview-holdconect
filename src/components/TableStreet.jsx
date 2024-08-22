@@ -128,6 +128,7 @@ const TableStreet = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
 
   const [filters, setFilters] = useState({
@@ -158,13 +159,19 @@ const TableStreet = () => {
           return {
             ...street,
             street: street.name,
+            city_id: city.id,
             city: city.name,
+            province_id: province.id,
             province: province.name,
+            region_id: region.id,
             region: region.name,
           };
         });
 
-        setFilteredData(streets);
+        console.log('Fetched Streets:', streets); 
+
+        setAllData(streets);
+        setFilteredData(streets); 
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -205,19 +212,25 @@ const TableStreet = () => {
   };
 
   const applyFilters = (newFilters) => {
+    console.log('Applying Filters:', newFilters); 
     setFilters(newFilters);
-    const filtered = data.filter((item) => {
+
+    const filtered = allData.filter((item) => {
       return (
-        (!newFilters.region || item.region === newFilters.region) &&
-        (!newFilters.province || item.province === newFilters.province) &&
-        (!newFilters.city || item.city === newFilters.city) &&
-        (!newFilters.street || item.street === newFilters.street)
+        (!newFilters.region || item.region_id === parseInt(newFilters.region)) &&
+        (!newFilters.province || item.province_id === parseInt(newFilters.province)) &&
+        (!newFilters.city || item.city_id === parseInt(newFilters.city)) &&
+        (!newFilters.street || item.id === parseInt(newFilters.street)) 
       );
     });
+
+    console.log('Filtered Data:', filtered); 
+
     setFilteredData(filtered);
   };
 
   const addNewStreet = (newStreet) => {
+    console.log('Adding New Street:', newStreet); 
     const newData = [...filteredData, newStreet];
     setFilteredData(newData);
     handleCloseCreateModal();
