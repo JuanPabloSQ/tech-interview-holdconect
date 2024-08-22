@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -16,9 +17,10 @@ import Tooltip from '@mui/material/Tooltip';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcon from '@mui/icons-material/Add';
 import { visuallyHidden } from '@mui/utils';
-import data from '../example';
 import ModalFilter from './ModalFilter';
 import ModalCreate from './ModalCreate';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const descendingComparator = (a, b, orderBy) => {
   if (b[orderBy] < a[orderBy]) {
@@ -126,7 +128,7 @@ const TableStreet = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [filteredData, setFilteredData] = useState(data);
+  const [filteredData, setFilteredData] = useState([]);
 
   const [filters, setFilters] = useState({
     region: '',
@@ -134,6 +136,42 @@ const TableStreet = () => {
     city: '',
     street: '',
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [regionsResponse, provincesResponse, citiesResponse, streetsResponse] = await Promise.all([
+          axios.get(`${API_URL}/regions`),
+          axios.get(`${API_URL}/provinces`),
+          axios.get(`${API_URL}/cities`),
+          axios.get(`${API_URL}/streets`),
+        ]);
+
+        const regions = regionsResponse.data;
+        const provinces = provincesResponse.data;
+        const cities = citiesResponse.data;
+        const streets = streetsResponse.data.map(street => {
+          const city = cities.find(c => c.id === street.city_id);
+          const province = provinces.find(p => p.id === city.province_id);
+          const region = regions.find(r => r.id === province.region_id);
+
+          return {
+            ...street,
+            street: street.name,
+            city: city.name,
+            province: province.name,
+            region: region.name,
+          };
+        });
+
+        setFilteredData(streets);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
