@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -8,7 +9,8 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import data from '../example'; 
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const style = {
   position: 'absolute',
@@ -22,21 +24,67 @@ const style = {
   p: 4,
 };
 
-const getRegions = (data) => [...new Set(data.map(item => item.region))];
-
-const getProvinces = (data, region) => {
-  return [...new Set(data.filter(item => item.region === region).map(item => item.province))];
-};
-
-const getCities = (data, province) => {
-  return [...new Set(data.filter(item => item.province === province).map(item => item.city))];
-};
-
 const ModalCreate = ({ open, handleClose, addNewStreet }) => {
+  const [regions, setRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [newStreet, setNewStreet] = useState('');
+
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/regions`);
+        setRegions(response.data);
+      } catch (error) {
+        console.error('Error fetching regions:', error);
+      }
+    };
+
+    fetchRegions();
+  }, []);
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      if (selectedRegion) {
+        try {
+          console.log(`Fetching provinces for region_id=${selectedRegion}`);
+          const response = await axios.get(`${API_URL}/provinces`);
+          const filteredProvinces = response.data.filter(province => province.region_id === selectedRegion);
+          console.log('Filtered Provinces:', filteredProvinces);
+          setProvinces(filteredProvinces);
+        } catch (error) {
+          console.error('Error fetching provinces:', error);
+        }
+      } else {
+        setProvinces([]);
+      }
+    };
+
+    fetchProvinces();
+  }, [selectedRegion]);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      if (selectedProvince) {
+        try {
+          console.log(`Fetching cities for province_id=${selectedProvince}`);
+          const response = await axios.get(`${API_URL}/cities`);
+          const filteredCities = response.data.filter(city => city.province_id === selectedProvince);
+          console.log('Filtered Cities:', filteredCities);
+          setCities(filteredCities);
+        } catch (error) {
+          console.error('Error fetching cities:', error);
+        }
+      } else {
+        setCities([]);
+      }
+    };
+
+    fetchCities();
+  }, [selectedProvince]);
 
   const handleRegionChange = (event) => {
     setSelectedRegion(event.target.value);
@@ -57,16 +105,27 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
     setNewStreet(event.target.value);
   };
 
-  const handleAddNewStreet = () => {
-    if (selectedRegion && selectedProvince && selectedCity && newStreet) {
-      addNewStreet({
-        id: data.length + 1, 
-        street: newStreet,
-        region: selectedRegion,
-        province: selectedProvince,
-        city: selectedCity,
-      });
-      handleClose();
+  const handleAddNewStreet = async () => {
+    if (selectedCity && newStreet) {
+      const newStreetData = {
+        name: newStreet,
+        city_id: selectedCity,
+      };
+
+      try {
+        const response = await axios.post(`${API_URL}/streets`, newStreetData);
+        addNewStreet({
+          id: response.data.id,
+          street: newStreet,
+          region: regions.find(r => r.id === selectedRegion).name,
+          province: provinces.find(p => p.id === selectedProvince).name,
+          city: cities.find(c => c.id === selectedCity).name,
+        });
+        handleClose();
+      } catch (error) {
+        console.error('Error adding new street:', error);
+        alert('Error al agregar la nueva calle. Inténtalo de nuevo.');
+      }
     } else {
       alert('Por favor, completa todos los campos.');
     }
@@ -78,10 +137,6 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
     setSelectedCity('');
     setNewStreet('');
   };
-
-  const regions = getRegions(data);
-  const provinces = selectedRegion ? getProvinces(data, selectedRegion) : [];
-  const cities = selectedProvince ? getCities(data, selectedProvince) : [];
 
   return (
     <Modal
@@ -102,9 +157,9 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
             onChange={handleRegionChange}
             label="Región"
           >
-            {regions.map((region, index) => (
-              <MenuItem key={index} value={region}>
-                {region}
+            {regions.map((region) => (
+              <MenuItem key={region.id} value={region.id}>
+                {region.name}
               </MenuItem>
             ))}
           </Select>
@@ -117,9 +172,9 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
             onChange={handleProvinceChange}
             label="Provincia"
           >
-            {provinces.map((province, index) => (
-              <MenuItem key={index} value={province}>
-                {province}
+            {provinces.map((province) => (
+              <MenuItem key={province.id} value={province.id}>
+                {province.name}
               </MenuItem>
             ))}
           </Select>
@@ -132,9 +187,9 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
             onChange={handleCityChange}
             label="Ciudad"
           >
-            {cities.map((city, index) => (
-              <MenuItem key={index} value={city}>
-                {city}
+            {cities.map((city) => (
+              <MenuItem key={city.id} value={city.id}>
+                {city.name}
               </MenuItem>
             ))}
           </Select>
