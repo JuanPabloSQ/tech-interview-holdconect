@@ -73,10 +73,10 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort }) => {
             sortDirection={orderBy === headCell.id ? order : false}
             sx={{
               pl: 2,
-              width: '200px', 
-              whiteSpace: 'nowrap', 
-              overflow: 'hidden', 
-              textOverflow: 'ellipsis', 
+              maxWidth: '100px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             <TableSortLabel
@@ -278,7 +278,7 @@ const TableStreet = () => {
                     padding="none"
                     sx={{ 
                       pl: 2, 
-                      width: '200px', 
+                      maxWidth: '100px', 
                       whiteSpace: 'nowrap', 
                       overflow: 'hidden', 
                       textOverflow: 'ellipsis', 
@@ -289,7 +289,7 @@ const TableStreet = () => {
                   <TableCell 
                     align="left"
                     sx={{
-                      width: '200px', 
+                      maxWidth: '100px', 
                       whiteSpace: 'nowrap', 
                       overflow: 'hidden', 
                       textOverflow: 'ellipsis' 
@@ -300,7 +300,7 @@ const TableStreet = () => {
                   <TableCell 
                     align="left"
                     sx={{ 
-                      width: '200px', 
+                      maxWidth: '100px', 
                       whiteSpace: 'nowrap', 
                       overflow: 'hidden', 
                       textOverflow: 'ellipsis' 
@@ -311,7 +311,7 @@ const TableStreet = () => {
                   <TableCell 
                     align="left"
                     sx={{ 
-                      width: '200px', 
+                      maxWidth: '100px', 
                       whiteSpace: 'nowrap', 
                       overflow: 'hidden', 
                       textOverflow: 'ellipsis' 
