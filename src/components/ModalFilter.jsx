@@ -8,6 +8,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
+import { useSnackbar } from '../context/SnackbarContext';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -28,11 +29,11 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
   const [streets, setStreets] = useState([]);
-
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedStreet, setSelectedStreet] = useState('');
+  const { errorSnackbar } = useSnackbar();
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -41,6 +42,7 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
         setRegions(response.data);
       } catch (error) {
         console.error('Error fetching regions:', error);
+        errorSnackbar('Error.');
       }
     };
 
@@ -54,6 +56,7 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
       setProvinces(filteredProvinces);
     } catch (error) {
       console.error('Error fetching provinces:', error);
+      errorSnackbar('Error.');
     }
   };
 
@@ -64,6 +67,7 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
       setCities(filteredCities);
     } catch (error) {
       console.error('Error fetching cities:', error);
+      errorSnackbar('Error.');
     }
   };
 
@@ -74,6 +78,7 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
       setStreets(filteredStreets);
     } catch (error) {
       console.error('Error fetching streets:', error);
+      errorSnackbar('Error.');
     }
   };
 

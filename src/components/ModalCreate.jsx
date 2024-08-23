@@ -9,6 +9,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import { useSnackbar } from '../context/SnackbarContext';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -24,6 +25,8 @@ const style = {
   p: 4,
 };
 
+
+
 const ModalCreate = ({ open, handleClose, addNewStreet }) => {
   const [regions, setRegions] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -32,6 +35,7 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [newStreet, setNewStreet] = useState('');
+  const { errorSnackbar, successSnackbar } = useSnackbar();
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -122,12 +126,13 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
           city: cities.find(c => c.id === selectedCity).name,
         });
         handleClose();
+        successSnackbar('Calle creada con exito')
       } catch (error) {
         console.error('Error adding new street:', error);
-        alert('Error al agregar la nueva calle. Inténtalo de nuevo.');
+        errorSnackbar('La evaluación no se pudo enviar, inténtelo nuevamente');
       }
     } else {
-      alert('Por favor, completa todos los campos.');
+      errorSnackbar('Por favor, completa todos los campos.');
     }
   };
 

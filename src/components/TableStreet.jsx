@@ -19,6 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { visuallyHidden } from '@mui/utils';
 import ModalFilter from './ModalFilter';
 import ModalCreate from './ModalCreate';
+import { useSnackbar } from '../context/SnackbarContext';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -112,7 +113,7 @@ const EnhancedTableToolbar = ({ onFilterClick, onCreateClick }) => (
     }}
   >
     <Typography sx={{ flex: '1 1 100%' }} variant="h6" id="tableTitle" component="div">
-      Dirección
+      Direcciónes
     </Typography>
     <Tooltip title="Filtrar lista">
       <IconButton onClick={onFilterClick}>
@@ -136,7 +137,7 @@ const TableStreet = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-
+  const { errorSnackbar } = useSnackbar();
   const [filters, setFilters] = useState({
     region: '',
     province: '',
@@ -180,6 +181,7 @@ const TableStreet = () => {
         setFilteredData(streets); 
       } catch (error) {
         console.error('Error fetching data:', error);
+        errorSnackbar('Error en el servidor.');
       }
     };
 
@@ -256,13 +258,14 @@ const TableStreet = () => {
 
   return (
     <>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      <Paper
+        sx={{ width: '100%', maxWidth: '1400px', mb: 2,mx: 'auto'}}>
         <EnhancedTableToolbar 
           onFilterClick={handleOpenFilterModal} 
           onCreateClick={handleOpenCreateModal} 
         />
-        <TableContainer>
-          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
+        <TableContainer >
+          <Table sx={{ Width: 750 }} aria-labelledby="tableTitle">
             <EnhancedTableHead
               order={order}
               orderBy={orderBy}
