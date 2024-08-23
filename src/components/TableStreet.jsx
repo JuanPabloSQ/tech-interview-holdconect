@@ -71,7 +71,13 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort }) => {
             align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
-            sx={headCell.id === 'street' ? { pl: 2 } : {}} 
+            sx={{
+              pl: 2,
+              width: '200px', 
+              whiteSpace: 'nowrap', 
+              overflow: 'hidden', 
+              textOverflow: 'ellipsis', 
+            }}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -270,13 +276,49 @@ const TableStreet = () => {
                     component="th" 
                     scope="row" 
                     padding="none"
-                    sx={{ pl: 2 }} 
+                    sx={{ 
+                      pl: 2, 
+                      width: '200px', 
+                      whiteSpace: 'nowrap', 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis', 
+                    }} 
                   >
                     {row.street}
                   </TableCell>
-                  <TableCell align="left">{row.region}</TableCell>
-                  <TableCell align="left">{row.province}</TableCell>
-                  <TableCell align="left">{row.city}</TableCell>
+                  <TableCell 
+                    align="left"
+                    sx={{
+                      width: '200px', 
+                      whiteSpace: 'nowrap', 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis' 
+                    }}
+                  >
+                    {row.region}
+                  </TableCell>
+                  <TableCell 
+                    align="left"
+                    sx={{ 
+                      width: '200px', 
+                      whiteSpace: 'nowrap', 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis' 
+                    }}
+                  >
+                    {row.province}
+                  </TableCell>
+                  <TableCell 
+                    align="left"
+                    sx={{ 
+                      width: '200px', 
+                      whiteSpace: 'nowrap', 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis' 
+                    }}
+                  >
+                    {row.city}
+                  </TableCell>
                 </TableRow>
               ))}
               {emptyRows > 0 && (

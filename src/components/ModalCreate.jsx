@@ -206,7 +206,7 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
 
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
           <Button variant="contained" color="primary" onClick={handleAddNewStreet}>
-            Agregar Calle
+            Agregar
           </Button>
           <Button variant="outlined" color="secondary" onClick={handleResetFields}>
             Reiniciar

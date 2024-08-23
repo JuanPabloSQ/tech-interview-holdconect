@@ -211,10 +211,10 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
 
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
           <Button variant="contained" color="primary" onClick={handleApplyFilters}>
-            Aplicar Filtros
+            Aplicar
           </Button>
           <Button variant="outlined" color="secondary" onClick={handleResetFilters}>
-            Reiniciar Filtros
+            Reiniciar
           </Button>
         </Box>
       </Box>
