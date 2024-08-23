@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import Table from '@mui/material/Table';
@@ -78,6 +78,9 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort }) => {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
+              [`@media (max-width: 600px)`]: {
+                maxWidth: '50px',
+              },
             }}
           >
             <TableSortLabel
@@ -259,7 +262,16 @@ const TableStreet = () => {
   return (
     <>
       <Paper
-        sx={{ width: '100%', maxWidth: '1400px', mb: 2,mx: 'auto'}}>
+        sx={{ 
+          width: '100%', 
+          maxWidth: '1400px', 
+          mb: 2, 
+          mx: 'auto',
+          [`@media (max-width: 900px)`]: {
+            width: '100%',
+            maxWidth: '100%',
+          },
+        }}>
         <EnhancedTableToolbar 
           onFilterClick={handleOpenFilterModal} 
           onCreateClick={handleOpenCreateModal} 
@@ -285,6 +297,9 @@ const TableStreet = () => {
                       whiteSpace: 'nowrap', 
                       overflow: 'hidden', 
                       textOverflow: 'ellipsis', 
+                      [`@media (max-width: 600px)`]: {
+                        maxWidth: '50px',
+                      },
                     }} 
                   >
                     {row.street}
@@ -295,7 +310,10 @@ const TableStreet = () => {
                       maxWidth: '100px', 
                       whiteSpace: 'nowrap', 
                       overflow: 'hidden', 
-                      textOverflow: 'ellipsis' 
+                      textOverflow: 'ellipsis',
+                      [`@media (max-width: 600px)`]: {
+                        maxWidth: '50px',
+                      },
                     }}
                   >
                     {row.region}
@@ -306,7 +324,10 @@ const TableStreet = () => {
                       maxWidth: '100px', 
                       whiteSpace: 'nowrap', 
                       overflow: 'hidden', 
-                      textOverflow: 'ellipsis' 
+                      textOverflow: 'ellipsis',
+                      [`@media (max-width: 600px)`]: {
+                        maxWidth: '50px',
+                      },
                     }}
                   >
                     {row.province}
@@ -317,7 +338,10 @@ const TableStreet = () => {
                       maxWidth: '100px', 
                       whiteSpace: 'nowrap', 
                       overflow: 'hidden', 
-                      textOverflow: 'ellipsis' 
+                      textOverflow: 'ellipsis',
+                      [`@media (max-width: 600px)`]: {
+                        maxWidth: '50px',
+                      },
                     }}
                   >
                     {row.city}

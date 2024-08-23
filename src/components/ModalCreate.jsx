@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -18,14 +18,17 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: '90%',
+  maxWidth: '400px',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
+  [`@media (max-width: 600px)`]: {
+    width: '100%',
+    p: 2,
+  },
 };
-
-
 
 const ModalCreate = ({ open, handleClose, addNewStreet }) => {
   const [regions, setRegions] = useState([]);
@@ -126,7 +129,7 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
           city: cities.find(c => c.id === selectedCity).name,
         });
         handleClose();
-        successSnackbar('Calle creada con exito')
+        successSnackbar('Calle creada con éxito');
       } catch (error) {
         console.error('Error adding new street:', error);
         errorSnackbar('La evaluación no se pudo enviar, inténtelo nuevamente');
