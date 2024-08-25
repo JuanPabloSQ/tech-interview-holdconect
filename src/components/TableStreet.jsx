@@ -19,6 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { visuallyHidden } from '@mui/utils';
 import ModalFilter from './ModalFilter';
 import ModalCreate from './ModalCreate';
+import LinearProgress from '@mui/material/LinearProgress';  
 import { useSnackbar } from '../context/SnackbarContext';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -136,6 +137,7 @@ const TableStreet = () => {
   const [orderBy, setOrderBy] = useState('street');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [loading, setLoading] = useState(true);  
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [allData, setAllData] = useState([]);
@@ -150,6 +152,7 @@ const TableStreet = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true); 
       try {
         const [regionsResponse, provincesResponse, citiesResponse, streetsResponse] = await Promise.all([
           axios.get(`${API_URL}/regions`),
@@ -185,6 +188,8 @@ const TableStreet = () => {
       } catch (error) {
         console.error('Error fetching data:', error);
         errorSnackbar('Error en el servidor.');
+      } finally {
+        setLoading(false);  
       }
     };
 
@@ -276,99 +281,105 @@ const TableStreet = () => {
           onFilterClick={handleOpenFilterModal} 
           onCreateClick={handleOpenCreateModal} 
         />
-        <TableContainer >
-          <Table sx={{ Width: 750 }} aria-labelledby="tableTitle">
-            <EnhancedTableHead
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-              rowCount={filteredData.length}
+        {loading ? ( 
+          <LinearProgress />
+        ) : (
+          <>
+            <TableContainer >
+              <Table sx={{ Width: 750 }} aria-labelledby="tableTitle">
+                <EnhancedTableHead
+                  order={order}
+                  orderBy={orderBy}
+                  onRequestSort={handleRequestSort}
+                  rowCount={filteredData.length}
+                />
+                <TableBody>
+                  {visibleRows.map((row) => (
+                    <TableRow hover tabIndex={-1} key={row.id} sx={{ cursor: 'pointer' }}>
+                      <TableCell 
+                        component="th" 
+                        scope="row" 
+                        padding="none"
+                        sx={{ 
+                          pl: 2, 
+                          maxWidth: '100px', 
+                          whiteSpace: 'nowrap', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis', 
+                          [`@media (max-width: 600px)`]: {
+                            maxWidth: '50px',
+                          },
+                        }} 
+                      >
+                        {row.street}
+                      </TableCell>
+                      <TableCell 
+                        align="left"
+                        sx={{
+                          maxWidth: '100px', 
+                          whiteSpace: 'nowrap', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis',
+                          [`@media (max-width: 600px)`]: {
+                            maxWidth: '50px',
+                          },
+                        }}
+                      >
+                        {row.region}
+                      </TableCell>
+                      <TableCell 
+                        align="left"
+                        sx={{ 
+                          maxWidth: '100px', 
+                          whiteSpace: 'nowrap', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis',
+                          [`@media (max-width: 600px)`]: {
+                            maxWidth: '50px',
+                          },
+                        }}
+                      >
+                        {row.province}
+                      </TableCell>
+                      <TableCell 
+                        align="left"
+                        sx={{ 
+                          maxWidth: '100px', 
+                          whiteSpace: 'nowrap', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis',
+                          [`@media (max-width: 600px)`]: {
+                            maxWidth: '50px',
+                          },
+                        }}
+                      >
+                        {row.city}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {emptyRows > 0 && (
+                    <TableRow
+                      style={{
+                        height: 53 * emptyRows,
+                      }}
+                    >
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredData.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
             />
-            <TableBody>
-              {visibleRows.map((row) => (
-                <TableRow hover tabIndex={-1} key={row.id} sx={{ cursor: 'pointer' }}>
-                  <TableCell 
-                    component="th" 
-                    scope="row" 
-                    padding="none"
-                    sx={{ 
-                      pl: 2, 
-                      maxWidth: '100px', 
-                      whiteSpace: 'nowrap', 
-                      overflow: 'hidden', 
-                      textOverflow: 'ellipsis', 
-                      [`@media (max-width: 600px)`]: {
-                        maxWidth: '50px',
-                      },
-                    }} 
-                  >
-                    {row.street}
-                  </TableCell>
-                  <TableCell 
-                    align="left"
-                    sx={{
-                      maxWidth: '100px', 
-                      whiteSpace: 'nowrap', 
-                      overflow: 'hidden', 
-                      textOverflow: 'ellipsis',
-                      [`@media (max-width: 600px)`]: {
-                        maxWidth: '50px',
-                      },
-                    }}
-                  >
-                    {row.region}
-                  </TableCell>
-                  <TableCell 
-                    align="left"
-                    sx={{ 
-                      maxWidth: '100px', 
-                      whiteSpace: 'nowrap', 
-                      overflow: 'hidden', 
-                      textOverflow: 'ellipsis',
-                      [`@media (max-width: 600px)`]: {
-                        maxWidth: '50px',
-                      },
-                    }}
-                  >
-                    {row.province}
-                  </TableCell>
-                  <TableCell 
-                    align="left"
-                    sx={{ 
-                      maxWidth: '100px', 
-                      whiteSpace: 'nowrap', 
-                      overflow: 'hidden', 
-                      textOverflow: 'ellipsis',
-                      [`@media (max-width: 600px)`]: {
-                        maxWidth: '50px',
-                      },
-                    }}
-                  >
-                    {row.city}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: 53 * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={filteredData.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+          </>
+        )}
       </Paper>
 
       <ModalFilter 
