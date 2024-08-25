@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import axios from 'axios';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -103,12 +102,6 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort }) => {
   );
 };
 
-EnhancedTableHead.propTypes = {
-  onRequestSort: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-  orderBy: PropTypes.string.isRequired,
-};
-
 const EnhancedTableToolbar = ({ onFilterClick, onCreateClick }) => (
   <Toolbar
     sx={{
@@ -117,7 +110,7 @@ const EnhancedTableToolbar = ({ onFilterClick, onCreateClick }) => (
     }}
   >
     <Typography sx={{ flex: '1 1 100%' }} variant="h6" id="tableTitle" component="div">
-      Direcciónes
+      Direcciones
     </Typography>
     <Tooltip title="Filtrar lista">
       <IconButton onClick={onFilterClick}>
@@ -150,7 +143,7 @@ const TableStreet = () => {
     street: '',
   });
 
-  useEffect(() => {
+
     const fetchData = async () => {
       setLoading(true); 
       try {
@@ -192,7 +185,8 @@ const TableStreet = () => {
         setLoading(false);  
       }
     };
-
+    
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -228,7 +222,6 @@ const TableStreet = () => {
   };
 
   const applyFilters = (newFilters) => {
-    console.log('Applying Filters:', newFilters); 
     setFilters(newFilters);
 
     const filtered = allData.filter((item) => {
@@ -240,13 +233,10 @@ const TableStreet = () => {
       );
     });
 
-    console.log('Filtered Data:', filtered); 
-
     setFilteredData(filtered);
   };
 
   const addNewStreet = (newStreet) => {
-    console.log('Adding New Street:', newStreet); 
     const newData = [...filteredData, newStreet];
     setFilteredData(newData);
     handleCloseCreateModal();
