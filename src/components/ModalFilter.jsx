@@ -47,7 +47,7 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
         setRegions(response.data);
       } catch (error) {
         console.error('Error fetching regions:', error);
-        errorSnackbar('Error.');
+        errorSnackbar('Error fetching regions.');
       }
     };
 
@@ -56,34 +56,37 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
 
   const fetchProvinces = async (regionId) => {
     try {
-      const response = await axios.get(`${API_URL}/provinces`);
-      const filteredProvinces = response.data.filter(province => province.region_id === regionId);
-      setProvinces(filteredProvinces);
+      const response = await axios.get(`${API_URL}/provinces`, {
+        params: { region_id: regionId }
+      });
+      setProvinces(response.data);
     } catch (error) {
       console.error('Error fetching provinces:', error);
-      errorSnackbar('Error.');
+      errorSnackbar('Error fetching provinces.');
     }
   };
 
   const fetchCities = async (provinceId) => {
     try {
-      const response = await axios.get(`${API_URL}/cities`);
-      const filteredCities = response.data.filter(city => city.province_id === provinceId);
-      setCities(filteredCities);
+      const response = await axios.get(`${API_URL}/cities`, {
+        params: { province_id: provinceId }
+      });
+      setCities(response.data);
     } catch (error) {
       console.error('Error fetching cities:', error);
-      errorSnackbar('Error.');
+      errorSnackbar('Error fetching cities.');
     }
   };
 
   const fetchStreets = async (cityId) => {
     try {
-      const response = await axios.get(`${API_URL}/streets`);
-      const filteredStreets = response.data.filter(street => street.city_id === cityId);
-      setStreets(filteredStreets);
+      const response = await axios.get(`${API_URL}/streets`, {
+        params: { city_id: cityId }
+      });
+      setStreets(response.data);
     } catch (error) {
       console.error('Error fetching streets:', error);
-      errorSnackbar('Error.');
+      errorSnackbar('Error fetching streets.');
     }
   };
 
@@ -96,7 +99,6 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
     setProvinces([]);
     setCities([]);
     setStreets([]);
-
     fetchProvinces(regionId);
   };
 
