@@ -40,68 +40,57 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
   const [newStreet, setNewStreet] = useState('');
   const { errorSnackbar, successSnackbar } = useSnackbar();
 
-  useEffect(() => {
-    const fetchRegions = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/regions`);
-        setRegions(response.data);
-      } catch (error) {
-        console.error('Error fetching regions:', error);
-      }
-    };
 
-    fetchRegions();
-  }, []);
+  const fetchRegions = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/regions`);
+      setRegions(response.data);
+    } catch (error) {
+      console.error('Error fetching regions:', error);
+      errorSnackbar('Error accediendo a regiones.');
+    }
+  };
 
-  useEffect(() => {
-    const fetchProvinces = async () => {
-      if (selectedRegion) {
-        try {
-          console.log(`Fetching provinces for region_id=${selectedRegion}`);
-          const response = await axios.get(`${API_URL}/provinces`);
-          const filteredProvinces = response.data.filter(province => province.region_id === selectedRegion);
-          console.log('Filtered Provinces:', filteredProvinces);
-          setProvinces(filteredProvinces);
-        } catch (error) {
-          console.error('Error fetching provinces:', error);
-        }
-      } else {
-        setProvinces([]);
-      }
-    };
+  const fetchProvinces = async (regionId) => {
+    try {
+      const response = await axios.get(`${API_URL}/provinces`, {
+        params: { region_id: regionId }
+      });
+      setProvinces(response.data);
+    } catch (error) {
+      console.error('Error fetching provinces:', error);
+      errorSnackbar('Error accediendo a provincias.');
+    }
+  };
 
-    fetchProvinces();
-  }, [selectedRegion]);
-
-  useEffect(() => {
-    const fetchCities = async () => {
-      if (selectedProvince) {
-        try {
-          console.log(`Fetching cities for province_id=${selectedProvince}`);
-          const response = await axios.get(`${API_URL}/cities`);
-          const filteredCities = response.data.filter(city => city.province_id === selectedProvince);
-          console.log('Filtered Cities:', filteredCities);
-          setCities(filteredCities);
-        } catch (error) {
-          console.error('Error fetching cities:', error);
-        }
-      } else {
-        setCities([]);
-      }
-    };
-
-    fetchCities();
-  }, [selectedProvince]);
+  const fetchCities = async (provinceId) => {
+    try {
+      const response = await axios.get(`${API_URL}/cities`, {
+        params: { province_id: provinceId }
+      });
+      setCities(response.data);
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+      errorSnackbar('Error accediendo a ciudades.');
+    }
+  };
 
   const handleRegionChange = (event) => {
-    setSelectedRegion(event.target.value);
+    const regionId = event.target.value;
+    setSelectedRegion(regionId);
     setSelectedProvince('');
     setSelectedCity('');
+    setProvinces([]);
+    setCities([]);
+    fetchProvinces(regionId);
   };
 
   const handleProvinceChange = (event) => {
-    setSelectedProvince(event.target.value);
+    const provinceId = event.target.value;
+    setSelectedProvince(provinceId);
     setSelectedCity('');
+    setCities([]);
+    fetchCities(provinceId);
   };
 
   const handleCityChange = (event) => {
@@ -132,7 +121,7 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
         successSnackbar('Calle creada con éxito');
       } catch (error) {
         console.error('Error adding new street:', error);
-        errorSnackbar('La evaluación no se pudo enviar, inténtelo nuevamente');
+        errorSnackbar('La calle no se pudo crear, inténtelo nuevamente');
       }
     } else {
       errorSnackbar('Por favor, completa todos los campos.');
@@ -145,6 +134,11 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
     setSelectedCity('');
     setNewStreet('');
   };
+
+  useEffect(() => {
+    fetchRegions();
+  }, []);
+
 
   return (
     <Modal
