@@ -140,7 +140,7 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
   return (
     <Collapse in={filtersOpen}>
       <Box sx={{ p: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-        <FormControl sx={{ width: '15%', minWidth: '100px' }}>
+        <FormControl sx={{ width: '15%', minWidth: '100px' }} size="small">
           <InputLabel sx={{ minHeight: '30px', fontSize: '0.875rem' }}>Región</InputLabel>
           <Select
             value={selectedRegion}
@@ -156,7 +156,7 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
           </Select>
         </FormControl>
 
-        <FormControl sx={{ width: '15%', minWidth: '100px' }} disabled={!selectedRegion}>
+        <FormControl sx={{ width: '15%', minWidth: '100px' }} size="small" disabled={!selectedRegion}>
           <InputLabel sx={{ minHeight: '30px', fontSize: '0.875rem' }}>Provincia</InputLabel>
           <Select
             value={selectedProvince}
@@ -172,7 +172,7 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
           </Select>
         </FormControl>
 
-        <FormControl sx={{ width: '15%', minWidth: '100px' }} disabled={!selectedProvince}>
+        <FormControl sx={{ width: '15%', minWidth: '100px' }} size="small" disabled={!selectedProvince}>
           <InputLabel sx={{ minHeight: '30px', fontSize: '0.875rem' }}>Ciudad</InputLabel>
           <Select
             value={selectedCity}
@@ -188,7 +188,7 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
           </Select>
         </FormControl>
 
-        <FormControl sx={{ width: '15%', minWidth: '100px' }} disabled={!selectedCity}>
+        <FormControl sx={{ width: '15%', minWidth: '100px' }} size="small" disabled={!selectedCity}>
           <InputLabel sx={{ minHeight: '30px', fontSize: '0.875rem' }}>Calle</InputLabel>
           <Select
             value={selectedStreet}
