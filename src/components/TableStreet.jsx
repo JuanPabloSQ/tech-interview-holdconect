@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import axios from 'axios';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -144,6 +144,21 @@ const EnhancedTableToolbar = ({ onFilterClick, onCreateClick, searchText, onSear
   </Toolbar>
 );
 
+const useDebounce = (callback, delay) => {
+  const timeoutRef = useRef(null);
+
+  const debouncedCallback = useCallback((...args) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      callback(...args);
+    }, delay);
+  }, [callback, delay]);
+
+  return debouncedCallback;
+};
+
 const TableStreet = () => {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
@@ -157,21 +172,23 @@ const TableStreet = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { errorSnackbar } = useSnackbar();
 
-  const fetchData = async (filters = {}) => {
+  const fetchData = async (filters = {}, searchQuery = '') => {
     setLoading(true);
     try {
       let url = `${API_URL}/streets`;
 
-      if (filters.city_id) {
-        url += `?city_id=${filters.city_id}`;
-      } else if (filters.province_id) {
-        url += `?province_id=${filters.province_id}`;
-      } else if (filters.region_id) {
-        url += `?region_id=${filters.region_id}`;
+      const queryParams = [];
+      if (filters.city_id) queryParams.push(`city_id=${filters.city_id}`);
+      if (filters.province_id) queryParams.push(`province_id=${filters.province_id}`);
+      if (filters.region_id) queryParams.push(`region_id=${filters.region_id}`);
+      if (searchQuery) queryParams.push(`search=${encodeURIComponent(searchQuery)}`);
+
+      if (queryParams.length > 0) {
+        url += `?${queryParams.join('&')}`;
       }
 
       const response = await axios.get(url);
-      const streets = Array.isArray(response.data) ? response.data : [response.data];
+      const streets = response.data;
 
       setAllData(streets);
       setFilteredData(streets);
@@ -207,8 +224,8 @@ const TableStreet = () => {
   };
 
   const applyFilters = (newFilters) => {
-    fetchData(newFilters);
-    setPage(0); 
+    fetchData(newFilters, searchText);
+    setPage(0);
   };
 
   const addNewStreet = (newStreet) => {
@@ -221,24 +238,18 @@ const TableStreet = () => {
     setFiltersOpen(!filtersOpen);
   };
 
+  const debouncedSearch = useDebounce((searchQuery) => {
+    fetchData({}, searchQuery);  // Pass the current filters along with the search query
+  }, 500);
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+    debouncedSearch(e.target.value);
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
-
-  useEffect(() => {
-    if (searchText) {
-      const filtered = allData.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.region.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.province.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.city.toLowerCase().includes(searchText.toLowerCase())
-      );
-      setFilteredData(filtered);
-    } else {
-      setFilteredData(allData);
-    }
-  }, [searchText, allData]);
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
@@ -270,7 +281,7 @@ const TableStreet = () => {
           onFilterClick={handleToggleFilters}
           onCreateClick={handleOpenCreateModal}
           searchText={searchText}
-          onSearchChange={(e) => setSearchText(e.target.value)}
+          onSearchChange={handleSearchChange}
         />
         <AdvancedFilter
           filtersOpen={filtersOpen}
