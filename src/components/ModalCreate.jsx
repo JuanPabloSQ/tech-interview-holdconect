@@ -30,7 +30,7 @@ const style = {
   },
 };
 
-const ModalCreate = ({ open, handleClose, addNewStreet }) => {
+const ModalCreate = ({ open, onClose, onStreetCreate }) => {
   const [regions, setRegions] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
@@ -108,17 +108,9 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
       };
 
       try {
-        const response = await axios.post(`${API_URL}/streets`, newStreetData);
-        const addedStreet = {
-          id: response.data.id,
-          name: newStreet,
-          region: regions.find(r => r.id === selectedRegion).name,
-          province: provinces.find(p => p.id === selectedProvince).name,
-          city: cities.find(c => c.id === selectedCity).name,
-        };
-
-        addNewStreet(addedStreet);
-        handleClose();
+        await axios.post(`${API_URL}/streets`, newStreetData);
+        onStreetCreate();
+        onClose();
         successSnackbar('Calle creada con éxito');
       } catch (error) {
         console.error('Error adding new street:', error);
@@ -143,7 +135,7 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
   return (
     <Modal
       open={open}
-      onClose={handleClose}
+      onClose={onClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >

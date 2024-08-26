@@ -117,7 +117,7 @@ const EnhancedTableToolbar = ({ onFilterClick, onCreateClick, searchText, onSear
     <TextField
       variant="outlined"
       size="small"
-      placeholder="Buscar"
+      placeholder="Buscar calle"
       value={searchText}
       onChange={onSearchChange}
       sx={{ mr: 2 }}
@@ -168,26 +168,16 @@ const TableStreet = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [searchText, setSearchText] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { errorSnackbar } = useSnackbar();
+  const [queryParams, setQueryParams] = useState({});
 
-  const fetchData = async (filters = {}, searchQuery = '') => {
+  const fetchData = async (params) => {
     setLoading(true);
     try {
       let url = `${API_URL}/streets`;
 
-      const queryParams = [];
-      if (filters.city_id) queryParams.push(`city_id=${filters.city_id}`);
-      if (filters.province_id) queryParams.push(`province_id=${filters.province_id}`);
-      if (filters.region_id) queryParams.push(`region_id=${filters.region_id}`);
-      if (searchQuery) queryParams.push(`search=${encodeURIComponent(searchQuery)}`);
-
-      if (queryParams.length > 0) {
-        url += `?${queryParams.join('&')}`;
-      }
-
-      const response = await axios.get(url);
+      const response = await axios.get(url,{params});
       const streets = response.data;
 
       setAllData(streets);
@@ -224,13 +214,14 @@ const TableStreet = () => {
   };
 
   const applyFilters = (newFilters) => {
-    fetchData(newFilters, searchText);
+    const newParamas = {...newFilters, search: queryParams.search}
+    setQueryParams(newParamas)
+    fetchData(newParamas);
     setPage(0);
   };
 
-  const addNewStreet = (newStreet) => {
-    const newData = [...filteredData, newStreet];
-    setFilteredData(newData);
+  const handleStreetCreate = () => {
+    fetchData(queryParams)
     handleCloseCreateModal();
   };
 
@@ -239,16 +230,18 @@ const TableStreet = () => {
   };
 
   const debouncedSearch = useDebounce((searchQuery) => {
-    fetchData({}, searchQuery);  // Pass the current filters along with the search query
+    fetchData(searchQuery);
   }, 500);
 
   const handleSearchChange = (e) => {
-    setSearchText(e.target.value);
-    debouncedSearch(e.target.value);
+    const newParams = {...queryParams, search: e.target.value};
+    setQueryParams(newParams);
+    setPage(0)
+    debouncedSearch(newParams);
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(queryParams);
   }, []);
 
   const emptyRows =
@@ -280,7 +273,7 @@ const TableStreet = () => {
         <EnhancedTableToolbar
           onFilterClick={handleToggleFilters}
           onCreateClick={handleOpenCreateModal}
-          searchText={searchText}
+          searchText={queryParams.search}
           onSearchChange={handleSearchChange}
         />
         <AdvancedFilter
@@ -391,8 +384,8 @@ const TableStreet = () => {
 
       <ModalCreate
         open={createModalOpen}
-        handleClose={handleCloseCreateModal}
-        addNewStreet={addNewStreet}
+        onClose={handleCloseCreateModal}
+        onStreetCreate={handleStreetCreate}
       />
     </>
   );

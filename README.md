@@ -15,12 +15,8 @@ Finalmente, se implementó un diseño responsivo y se agregó la funcionalidad d
 
 1. **Iniciar server**
 
-Para poder inicializar la página web de manera correcta, es necesario tener montado el servidor según las indicaciones en:
+    Para poder inicializar la página web de manera correcta, es necesario tener montado el servidor según las indicaciones en: https://github.com/JuanPabloSQ/tech-interview-holdconet-server
 
-    ```
-    https://github.com/JuanPabloSQ/tech-interview-holdconet-server
-
-    ``` 
 
 2. **Clonar el repositorio**
     ```bash
