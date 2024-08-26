@@ -40,7 +40,6 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
   const [newStreet, setNewStreet] = useState('');
   const { errorSnackbar, successSnackbar } = useSnackbar();
 
-
   const fetchRegions = async () => {
     try {
       const response = await axios.get(`${API_URL}/regions`);
@@ -110,13 +109,15 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
 
       try {
         const response = await axios.post(`${API_URL}/streets`, newStreetData);
-        addNewStreet({
+        const addedStreet = {
           id: response.data.id,
-          street: newStreet,
+          name: newStreet,
           region: regions.find(r => r.id === selectedRegion).name,
           province: provinces.find(p => p.id === selectedProvince).name,
           city: cities.find(c => c.id === selectedCity).name,
-        });
+        };
+
+        addNewStreet(addedStreet);
         handleClose();
         successSnackbar('Calle creada con éxito');
       } catch (error) {
@@ -138,7 +139,6 @@ const ModalCreate = ({ open, handleClose, addNewStreet }) => {
   useEffect(() => {
     fetchRegions();
   }, []);
-
 
   return (
     <Modal

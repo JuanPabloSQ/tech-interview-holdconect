@@ -74,14 +74,21 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
     }
   };
 
-  const fetchStreets = async (cityId) => {
+  const fetchStreets = async (cityId, streetId = null) => {
     try {
-      const response = await axios.get(`${API_URL}/streets`, {
-        params: { city_id: cityId }
-      });
-      setStreets(response.data);
+      let url = `${API_URL}/streets`;
+
+      if (streetId) {
+        url = `${API_URL}/streets/${streetId}`;
+      } else if (cityId) {
+        url += `?city_id=${cityId}`;
+      }
+
+      const response = await axios.get(url);
+      const fetchedStreets = streetId ? [response.data] : response.data;
+      setStreets(fetchedStreets);
     } catch (error) {
-      console.error('Error fetching streets:', error);
+      console.error('Error fetching calles:', error);
       errorSnackbar('Error accediendo a calles.');
     }
   };
@@ -105,7 +112,6 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
     setSelectedStreet('');
     setCities([]);
     setStreets([]);
-
     fetchCities(provinceId);
   };
 
@@ -114,20 +120,21 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
     setSelectedCity(cityId);
     setSelectedStreet('');
     setStreets([]);
-
     fetchStreets(cityId);
   };
 
   const handleStreetChange = (event) => {
-    setSelectedStreet(event.target.value);
+    const streetId = event.target.value;
+    setSelectedStreet(streetId);
+    fetchStreets(null, streetId); 
   };
 
   const handleApplyFilters = () => {
     applyFilters({
-      region: selectedRegion,
-      province: selectedProvince,
-      city: selectedCity,
-      street: selectedStreet,
+      region_id: selectedRegion,
+      province_id: selectedProvince,
+      city_id: selectedCity,
+      street_id: selectedStreet,
     });
     handleClose();
   };
@@ -138,10 +145,10 @@ const ModalFilter = ({ open, handleClose, applyFilters }) => {
     setSelectedCity('');
     setSelectedStreet('');
     applyFilters({
-      region: '',
-      province: '',
-      city: '',
-      street: '',
+      region_id: '',
+      province_id: '',
+      city_id: '',
+      street_id: '',
     });
   };
 

@@ -52,7 +52,7 @@ const stableSort = (array, comparator) => {
 };
 
 const headCells = [
-  { id: 'street', numeric: false, disablePadding: true, label: 'Calle' },
+  { id: 'name', numeric: false, disablePadding: true, label: 'Calle' },
   { id: 'region', numeric: false, disablePadding: false, label: 'Región' },
   { id: 'province', numeric: false, disablePadding: false, label: 'Provincia' },
   { id: 'city', numeric: false, disablePadding: false, label: 'Ciudad' },
@@ -127,7 +127,7 @@ const EnhancedTableToolbar = ({ onFilterClick, onCreateClick }) => (
 
 const TableStreet = () => {
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('street');
+  const [orderBy, setOrderBy] = useState('name');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [loading, setLoading] = useState(true);  
@@ -136,59 +136,36 @@ const TableStreet = () => {
   const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const { errorSnackbar } = useSnackbar();
-  const [filters, setFilters] = useState({
-    region: '',
-    province: '',
-    city: '',
-    street: '',
-  });
 
+  const fetchData = async (filters = {}) => {
+    setLoading(true); 
+    try {
+      let url = `${API_URL}/streets`;
 
-    const fetchData = async () => {
-      setLoading(true); 
-      try {
-        const [regionsResponse, provincesResponse, citiesResponse, streetsResponse] = await Promise.all([
-          axios.get(`${API_URL}/regions`),
-          axios.get(`${API_URL}/provinces`),
-          axios.get(`${API_URL}/cities`),
-          axios.get(`${API_URL}/streets`),
-        ]);
-
-        const regions = regionsResponse.data;
-        const provinces = provincesResponse.data;
-        const cities = citiesResponse.data;
-        const streets = streetsResponse.data.map(street => {
-          const city = cities.find(c => c.id === street.city_id);
-          const province = provinces.find(p => p.id === city.province_id);
-          const region = regions.find(r => r.id === province.region_id);
-
-          return {
-            ...street,
-            street: street.name,
-            city_id: city.id,
-            city: city.name,
-            province_id: province.id,
-            province: province.name,
-            region_id: region.id,
-            region: region.name,
-          };
-        });
-
-        console.log('Fetched Streets:', streets); 
-
-        setAllData(streets);
-        setFilteredData(streets); 
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        errorSnackbar('Error en el servidor.');
-      } finally {
-        setLoading(false);  
+      if (filters.street_id) {
+        url = `${API_URL}/streets/${filters.street_id}`;
+      } else if (filters.city_id) {
+        url += `?city_id=${filters.city_id}`;
+      } else if (filters.province_id) {
+        url += `?province_id=${filters.province_id}`;
+      } else if (filters.region_id) {
+        url += `?region_id=${filters.region_id}`;
       }
-    };
-    
-  useEffect(() => {
-    fetchData();
-  }, []);
+
+      const response = await axios.get(url);
+      const streets = Array.isArray(response.data) ? response.data : [response.data];
+
+      console.log('Fetched Streets:', streets); 
+
+      setAllData(streets);
+      setFilteredData(streets); 
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      errorSnackbar('Error en el servidor.');
+    } finally {
+      setLoading(false);  
+    }
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -222,18 +199,7 @@ const TableStreet = () => {
   };
 
   const applyFilters = (newFilters) => {
-    setFilters(newFilters);
-
-    const filtered = allData.filter((item) => {
-      return (
-        (!newFilters.region || item.region_id === parseInt(newFilters.region)) &&
-        (!newFilters.province || item.province_id === parseInt(newFilters.province)) &&
-        (!newFilters.city || item.city_id === parseInt(newFilters.city)) &&
-        (!newFilters.street || item.id === parseInt(newFilters.street)) 
-      );
-    });
-
-    setFilteredData(filtered);
+    fetchData(newFilters);
   };
 
   const addNewStreet = (newStreet) => {
@@ -241,6 +207,10 @@ const TableStreet = () => {
     setFilteredData(newData);
     handleCloseCreateModal();
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
@@ -301,7 +271,7 @@ const TableStreet = () => {
                           },
                         }} 
                       >
-                        {row.street}
+                        {row.name}
                       </TableCell>
                       <TableCell 
                         align="left"
