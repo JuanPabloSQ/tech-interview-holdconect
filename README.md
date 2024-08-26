@@ -4,7 +4,7 @@
 ## Descripción
 Esta página es el desarrollo de la prueba técnica entregada por Holdconet. La web consiste en una tabla que muestra datos de calles proporcionados por una API. Se utilizó Axios para realizar las llamadas a la API y obtener los datos; para su visualización se utilizaron componentes MUI.
 
-La tabla permite ordenar cada una de las columnas mediante un método de ordenación. Además, presenta una opción de busqueda que incluye una función de búsqueda optimizada con un debouncer para evitar múltiples llamadas innecesarias a la API, filtrado de datos y de creación de calles.
+La tabla permite ordenar cada una de las columnas mediante un método de ordenación. Además, incluye una función de búsqueda optimizada con un debouncer para evitar múltiples llamadas innecesarias a la API, filtrado de datos y de creación de calles.
 
 La tabla también está configurada para permitir la paginación desde el cliente.
 
