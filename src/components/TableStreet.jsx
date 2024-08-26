@@ -15,6 +15,9 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcon from '@mui/icons-material/Add';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
 import { visuallyHidden } from '@mui/utils';
 import ModalFilter from './ModalFilter';
 import ModalCreate from './ModalCreate';
@@ -102,16 +105,32 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort }) => {
   );
 };
 
-const EnhancedTableToolbar = ({ onFilterClick, onCreateClick }) => (
+const EnhancedTableToolbar = ({ onFilterClick, onCreateClick, searchText, onSearchChange }) => (
   <Toolbar
     sx={{
       pl: { sm: 2 },
       pr: { xs: 1, sm: 1 },
     }}
   >
+    <TextField
+      variant="outlined"
+      size="small"
+      placeholder="Buscar"
+      value={searchText}
+      onChange={onSearchChange}
+      sx={{ mr: 2 }}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <SearchIcon />
+          </InputAdornment>
+        ),
+      }}
+    />
     <Typography sx={{ flex: '1 1 100%' }} variant="h6" id="tableTitle" component="div">
       Direcciones
     </Typography>
+
     <Tooltip title="Filtrar lista">
       <IconButton onClick={onFilterClick}>
         <FilterListIcon />
@@ -135,6 +154,7 @@ const TableStreet = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [searchText, setSearchText] = useState(''); 
   const { errorSnackbar } = useSnackbar();
 
   const fetchData = async (filters = {}) => {
@@ -154,8 +174,6 @@ const TableStreet = () => {
 
       const response = await axios.get(url);
       const streets = Array.isArray(response.data) ? response.data : [response.data];
-
-      console.log('Fetched Streets:', streets); 
 
       setAllData(streets);
       setFilteredData(streets); 
@@ -212,6 +230,20 @@ const TableStreet = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (searchText) {
+      const filtered = allData.filter((item) =>
+        item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.region.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.province.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.city.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(allData);
+    }
+  }, [searchText, allData]);
+
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredData.length) : 0;
 
@@ -240,6 +272,8 @@ const TableStreet = () => {
         <EnhancedTableToolbar 
           onFilterClick={handleOpenFilterModal} 
           onCreateClick={handleOpenCreateModal} 
+          searchText={searchText}
+          onSearchChange={(e) => setSearchText(e.target.value)}
         />
         {loading ? ( 
           <LinearProgress />
