@@ -130,7 +130,7 @@ const EnhancedTableToolbar = ({ onFilterClick, onCreateClick, searchText, onSear
       }}
     />
     <Box sx={{ display: 'flex', gap: 2 }}>
-      <Tooltip title="Filtrar lista">
+      <Tooltip title="Filtro avanzado">
         <IconButton onClick={onFilterClick}>
           <FilterListIcon />
         </IconButton>
