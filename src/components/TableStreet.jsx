@@ -18,6 +18,7 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import LinearProgress from '@mui/material/LinearProgress';
+import Box from '@mui/material/Box';
 import ModalCreate from './ModalCreate';
 import AdvancedFilter from './AdvancedFilter';
 import { visuallyHidden } from '@mui/utils';
@@ -109,6 +110,8 @@ const EnhancedTableToolbar = ({ onFilterClick, onCreateClick, searchText, onSear
     sx={{
       pl: { sm: 2 },
       pr: { xs: 1, sm: 1 },
+      display: 'flex',
+      justifyContent: 'space-between',
     }}
   >
     <TextField
@@ -126,17 +129,18 @@ const EnhancedTableToolbar = ({ onFilterClick, onCreateClick, searchText, onSear
         ),
       }}
     />
-
-    <Tooltip title="Filtrar lista">
-      <IconButton onClick={onFilterClick}>
-        <FilterListIcon />
-      </IconButton>
-    </Tooltip>
-    <Tooltip title="Agregar nueva calle">
-      <IconButton onClick={onCreateClick}>
-        <AddIcon />
-      </IconButton>
-    </Tooltip>
+    <Box sx={{ display: 'flex', gap: 2 }}>
+      <Tooltip title="Filtrar lista">
+        <IconButton onClick={onFilterClick}>
+          <FilterListIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Agregar nueva calle">
+        <IconButton onClick={onCreateClick}>
+          <AddIcon />
+        </IconButton>
+      </Tooltip>
+    </Box>
   </Toolbar>
 );
 
@@ -158,9 +162,7 @@ const TableStreet = () => {
     try {
       let url = `${API_URL}/streets`;
 
-      if (filters.street_id) {
-        url = `${API_URL}/streets/${filters.street_id}`;
-      } else if (filters.city_id) {
+      if (filters.city_id) {
         url += `?city_id=${filters.city_id}`;
       } else if (filters.province_id) {
         url += `?province_id=${filters.province_id}`;

@@ -15,11 +15,9 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
   const [regions, setRegions] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
-  const [streets, setStreets] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
-  const [selectedStreet, setSelectedStreet] = useState('');
   const { errorSnackbar } = useSnackbar();
 
   const fetchRegions = async () => {
@@ -56,34 +54,13 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
     }
   };
 
-  const fetchStreets = async (cityId, streetId = null) => {
-    try {
-      let url = `${API_URL}/streets`;
-
-      if (streetId) {
-        url = `${API_URL}/streets/${streetId}`;
-      } else if (cityId) {
-        url += `?city_id=${cityId}`;
-      }
-
-      const response = await axios.get(url);
-      const fetchedStreets = streetId ? [response.data] : response.data;
-      setStreets(fetchedStreets);
-    } catch (error) {
-      console.error('Error fetching calles:', error);
-      errorSnackbar('Error accediendo a calles.');
-    }
-  };
-
   const handleRegionChange = (event) => {
     const regionId = event.target.value;
     setSelectedRegion(regionId);
     setSelectedProvince('');
     setSelectedCity('');
-    setSelectedStreet('');
     setProvinces([]);
     setCities([]);
-    setStreets([]);
     fetchProvinces(regionId);
   };
 
@@ -91,24 +68,13 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
     const provinceId = event.target.value;
     setSelectedProvince(provinceId);
     setSelectedCity('');
-    setSelectedStreet('');
     setCities([]);
-    setStreets([]);
     fetchCities(provinceId);
   };
 
   const handleCityChange = (event) => {
     const cityId = event.target.value;
     setSelectedCity(cityId);
-    setSelectedStreet('');
-    setStreets([]);
-    fetchStreets(cityId);
-  };
-
-  const handleStreetChange = (event) => {
-    const streetId = event.target.value;
-    setSelectedStreet(streetId);
-    fetchStreets(null, streetId);
   };
 
   const handleApplyFilters = () => {
@@ -116,7 +82,6 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
       region_id: selectedRegion,
       province_id: selectedProvince,
       city_id: selectedCity,
-      street_id: selectedStreet,
     });
   };
 
@@ -124,12 +89,10 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
     setSelectedRegion('');
     setSelectedProvince('');
     setSelectedCity('');
-    setSelectedStreet('');
     applyFilters({
       region_id: '',
       province_id: '',
       city_id: '',
-      street_id: '',
     });
   };
 
@@ -146,10 +109,17 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
             value={selectedRegion}
             onChange={handleRegionChange}
             label="Región"
-            sx={{ minHeight: '20px', fontSize: '0.875rem'}}
+            sx={{ minHeight: '20px', fontSize: '0.875rem', textAlign: 'left' }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  textAlign: 'left',
+                },
+              },
+            }}
           >
             {regions.map((region) => (
-              <MenuItem key={region.id} value={region.id}>
+              <MenuItem key={region.id} value={region.id} sx={{ textAlign: 'left' }}>
                 {region.name}
               </MenuItem>
             ))}
@@ -162,10 +132,17 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
             value={selectedProvince}
             onChange={handleProvinceChange}
             label="Provincia"
-            sx={{ minHeight: '30px', fontSize: '0.875rem' }}
+            sx={{ minHeight: '30px', fontSize: '0.875rem', textAlign: 'left' }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  textAlign: 'left',
+                },
+              },
+            }}
           >
             {provinces.map((province) => (
-              <MenuItem key={province.id} value={province.id}>
+              <MenuItem key={province.id} value={province.id} sx={{ textAlign: 'left' }}>
                 {province.name}
               </MenuItem>
             ))}
@@ -178,27 +155,18 @@ const AdvancedFilter = ({ filtersOpen, applyFilters }) => {
             value={selectedCity}
             onChange={handleCityChange}
             label="Ciudad"
-            sx={{ minHeight: '30px', fontSize: '0.875rem' }}
+            sx={{ minHeight: '30px', fontSize: '0.875rem', textAlign: 'left' }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  textAlign: 'left',
+                },
+              },
+            }}
           >
             {cities.map((city) => (
-              <MenuItem key={city.id} value={city.id}>
+              <MenuItem key={city.id} value={city.id} sx={{ textAlign: 'left' }}>
                 {city.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl sx={{ width: '15%', minWidth: '100px' }} size="small" disabled={!selectedCity}>
-          <InputLabel sx={{ minHeight: '30px', fontSize: '0.875rem' }}>Calle</InputLabel>
-          <Select
-            value={selectedStreet}
-            onChange={handleStreetChange}
-            label="Calle"
-            sx={{ minHeight: '30px', fontSize: '0.875rem' }}
-          >
-            {streets.map((street) => (
-              <MenuItem key={street.id} value={street.id}>
-                {street.name}
               </MenuItem>
             ))}
           </Select>
