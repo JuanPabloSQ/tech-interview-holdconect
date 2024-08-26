@@ -273,7 +273,7 @@ const TableStreet = () => {
         <EnhancedTableToolbar
           onFilterClick={handleToggleFilters}
           onCreateClick={handleOpenCreateModal}
-          searchText={queryParams.search}
+          searchText={queryParams.search || ""}
           onSearchChange={handleSearchChange}
         />
         <AdvancedFilter
